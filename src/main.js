@@ -55,67 +55,47 @@ function main() {
 
     const hp = 10;
     var player = new Player(hp);
-    var tick = new Audio("snd/tick.wav");
-    var flipCard = new Audio("snd/flipCard.wav");
-    var music  = new Audio ("snd/tune.mp3");
-    var lifeSnd  = new Audio ("snd/life.wav");
-    var fightSnd = new Audio ("snd/fight.wav");
-    var deadSnd = new Audio ("snd/dead.wav");
+    const audioManager = new AudioManager();
+    audioManager.playMusic(music);
 
-    music.volume = .2;
-    music.loop = true;
-    music.play();
-
-
-    // function changeSound (sound){
-    //   audioGuy.pause();
-    //   audioGuy.currentTime = 0;
-    //   audioGuy.pitch = Math.random();
-    //   audioGuy.src = `snd/${sound}.wav`;
-    //   audioGuy.play();
-    // }
+    var monitor = new Monitor();
 
     var cardStackForGame = JSON.parse(JSON.stringify(newCardsStack));
     var newRoomsCopy = JSON.parse(JSON.stringify(newRooms));
-    
+
     const game = new Game(player, cardStackForGame, newRoomsCopy);
     game.callback = tip;
     game.cardStack = game.shuffleCards(game.cardStack);
     game.getHand(game.cardStack);
 
-    function updateStack() {
-      // Generate card divs and append them to the stack view
-      let stackView = document.querySelector(".cards-list");
-      let result = "";
-      game.cardStack.forEach(function(ele) {
-        result += `
-      <li style="list-style-image: url(img/${ele.value}.png)">${ele.value}
-      </li>`;
-      });
-      stackView.innerHTML = result;
-    }
+
+    let stackView = document.querySelector(".cards-list");
+    // stackView.innerHTML = monitor.updateStack(game)
+
 
     // Generate rooms and append them to the monitor view
+
+
     function updateRoomsIntoMonitor(cardValue) {
       let result = "";
       let monitorView = document.querySelector("#monitor");
-      
-      
-      game.rooms.forEach(function(ele, index) {
+
+
+      game.rooms.forEach(function (ele, index) {
         if (game.adventureStep < index) {
           return;
         }
-        
+
         var anim = "";
-        
+
         if (!game.rooms[index].visited) {
-          
+
           anim = "animation: play 0.8s steps(2) 2";
           game.rooms[index].value = cardValue;
           game.rooms[index].visited = true;
           var randomBackground = Math.trunc(Math.random() * 4);
-          
-          
+
+
           game.visitedBackgrounds[index] = randomBackground;
 
 
@@ -147,7 +127,7 @@ function main() {
     function updateHandView() {
       let handView = document.querySelector("#hand");
       let result = "";
-      game.hand.forEach(function(ele, index) {
+      game.hand.forEach(function (ele, index) {
         result += `
             <div class="hand-card" index="${index}" style="background: url(img/question.png) no-repeat"></div>`;
       });
@@ -188,12 +168,12 @@ function main() {
       let resultLifeStats = "";
       if (game.player.hp > 0) {
         result = `<img style="background: url(img/avatar_${n}.png) center no-repeat"> `;
-      resultLifeStats = `<h2 class="life-ui">LIFE: ${
-        game.player.hp
-      } </h2>`;
+        resultLifeStats = `<h2 class="life-ui">LIFE: ${
+          game.player.hp
+          } </h2>`;
       } else {
         result = `<img style="background: url(img/avatar_${n}.png) center no-repeat">`;
-      resultLifeStats = `<h2 class="life-ui">+DEAD+</h2>`;
+        resultLifeStats = `<h2 class="life-ui">+DEAD+</h2>`;
       }
       avatarView.innerHTML = result;
       lifeUI.innerHTML = resultLifeStats;
@@ -240,7 +220,7 @@ function main() {
 
         const time = 1000;
         let timedown = 5;
-        const intervalId = setInterval(function() {
+        const intervalId = setInterval(function () {
           timedown--;
           tip("New cards in  " + timedown);
           if (timedown === 0) {
@@ -256,13 +236,13 @@ function main() {
       clearInterval(t);
       game.getHand(game.cardStack);
       updateHandView();
-      updateStack();
+      stackView.innerHTML = monitor.updateStack(game);
 
       nextTurn();
     }
 
     function createHandListeners(handDiv) {
-      handDiv.forEach(function(e, i) {
+      handDiv.forEach(function (e, i) {
         handDiv[i].addEventListener("click", selectCard);
         // e.preventDefault();
       });
@@ -288,14 +268,14 @@ function main() {
       flipCard.play();
       game.handDivs[index].style.background = `url(img/${
         game.hand[index].value
-      }.png) center no-repeat`;
+        }.png) center no-repeat`;
     }
 
     function closeCardBox() {
-      game.handDivs.forEach(function(e) {
+      game.handDivs.forEach(function (e) {
         var cardsBox = document.querySelectorAll(".hand-card");
 
-        cardsBox.forEach(function(e, i) {
+        cardsBox.forEach(function (e, i) {
           e.removeAttribute("class", "hand-card");
           e.removeAttribute("id", "hand-card-back");
           e.style.background = ""; // removeAttribute("class","background");
@@ -308,7 +288,7 @@ function main() {
     function openCardBox() {
       var thing = document.querySelectorAll(".hand-closed");
 
-      thing.forEach(function(e, i) {
+      thing.forEach(function (e, i) {
         e.removeAttribute("class", "hand-closed");
         e.setAttribute("class", "hand-card");
         e.setAttribute("class", "hand-open");
@@ -316,7 +296,8 @@ function main() {
     }
 
     //first state
-    updateStack();
+    stackView.innerHTML = monitor.updateStack(game);
+    console.log(stackView);
     updateRoomsIntoMonitor("start");
     updateHandView();
     updateAvatarView();
@@ -324,7 +305,7 @@ function main() {
 
     tip(
       "Welcome to <color:#F44>jungle Rumble</color>. Pick a card and enjoy. Your hp: " +
-        game.player.hp
+      game.player.hp
     );
   }
 
@@ -358,14 +339,14 @@ function main() {
   }
 
   //TOOL
-  document.addEventListener("keydown", function(event) {
+  document.addEventListener("keydown", function (event) {
     if (event.keyCode === 38) {
       buildGameScreen();
     }
   });
 
 }
-  window.addEventListener("load", main);
+window.addEventListener("load", main);
 
 
 
