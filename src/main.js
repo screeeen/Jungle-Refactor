@@ -53,131 +53,36 @@ function main() {
     </div>
 `);
 
-    const hp = 10;
-    var player = new Player(hp);
-    const audioManager = new AudioManager();
-    audioManager.playMusic(music);
-
-    var monitor = new Monitor();
+    //------------------------------------
 
     var cardStackForGame = JSON.parse(JSON.stringify(newCardsStack));
     var newRoomsCopy = JSON.parse(JSON.stringify(newRooms));
 
-    const game = new Game(player, cardStackForGame, newRoomsCopy);
+    const hp = 10;
+    var player = new Player(hp);
+    const audioManager = new AudioManager();
+    // audioManager.playMusic(music);
+    var monitor = new Monitor();
+    var rooms = new Rooms(newRoomsCopy);
+    const game = new Game(player, cardStackForGame);
+
     game.callback = tip;
     game.cardStack = game.shuffleCards(game.cardStack);
     game.getHand(game.cardStack);
 
 
     let stackView = document.querySelector(".cards-list");
-    // stackView.innerHTML = monitor.updateStack(game)
+    let monitorView = document.querySelector("#monitor");
+    let handView = document.querySelector("#hand");
+    let avatarView = document.querySelector("#avatar");
+    let lifeUI = document.querySelector(".life-ui");
 
-
-    // Generate rooms and append them to the monitor view
-
-
-    function updateRoomsIntoMonitor(cardValue) {
-      let result = "";
-      let monitorView = document.querySelector("#monitor");
-
-
-      game.rooms.forEach(function (ele, index) {
-        if (game.adventureStep < index) {
-          return;
-        }
-
-        var anim = "";
-
-        if (!game.rooms[index].visited) {
-
-          anim = "animation: play 0.8s steps(2) 2";
-          game.rooms[index].value = cardValue;
-          game.rooms[index].visited = true;
-          var randomBackground = Math.trunc(Math.random() * 4);
-
-
-          game.visitedBackgrounds[index] = randomBackground;
+    // handView.innerHTML = monitor.updateHandView(handView, game);
+    //game.handDivs = document.querySelectorAll(".hand-card");
 
 
 
 
-          result += `
-          <div class="room ${game.adventureStep}" style="background-image:url(img/bg_${game.visitedBackgrounds[index]}.png); ">
-          <img class="room-action" src="img/${game.rooms[index].value}_room_open.png"; style="${anim};"/><h2>${index}</h2></div>`;
-          // console.log("result string: " + result);
-
-          game.visitedRoomsValue[index] = [game.rooms[index].value];
-          game.visitedBackgrounds[index] = randomBackground;
-
-        } else {
-          result += `<div class="room ${game.adventureStep}" style="background-image:url(img/bg_${game.visitedBackgrounds[index]}.png); ${anim}" ><h2>${index}</h2></div>`;
-        }
-
-        // console.log(
-        //   "game.adventureStep " + game.adventureStep + " index " + index
-        // );
-        // console.log("monitor ele value: " + ele.value + " " + cardValue);
-        // console.log("anim: " + anim);
-        // console.log("--------------------");
-      });
-      monitorView.innerHTML = result;
-    }
-
-    // Generate hand
-    function updateHandView() {
-      let handView = document.querySelector("#hand");
-      let result = "";
-      game.hand.forEach(function (ele, index) {
-        result += `
-            <div class="hand-card" index="${index}" style="background: url(img/question.png) no-repeat"></div>`;
-      });
-
-      handView.innerHTML = result;
-      game.handDivs = document.querySelectorAll(".hand-card");
-    }
-
-    // Generate avatar
-    function updateAvatarView() {
-      let avatarView = document.querySelector("#avatar");
-      let lifeUI = document.querySelector(".life-ui");
-      let n = "";
-      if (game.player.hp > 7) {
-        n = "";
-      }
-      if (game.player.hp == 8) {
-        n = "6";
-      }
-      if (game.player.hp == 4) {
-        n = "6";
-      }
-      if (game.player.hp == 2) {
-        n = "6";
-      }
-
-      if (game.player.hp < 5) {
-        n = "2";
-      }
-      if (game.player.hp < 3) {
-        n = "3";
-      }
-      if (game.player.hp < 1) {
-        n = "4";
-      }
-
-      let result = "";
-      let resultLifeStats = "";
-      if (game.player.hp > 0) {
-        result = `<img style="background: url(img/avatar_${n}.png) center no-repeat"> `;
-        resultLifeStats = `<h2 class="life-ui">LIFE: ${
-          game.player.hp
-          } </h2>`;
-      } else {
-        result = `<img style="background: url(img/avatar_${n}.png) center no-repeat">`;
-        resultLifeStats = `<h2 class="life-ui">+DEAD+</h2>`;
-      }
-      avatarView.innerHTML = result;
-      lifeUI.innerHTML = resultLifeStats;
-    }
 
     function tip(msg) {
       var speed = 25;
@@ -209,9 +114,13 @@ function main() {
       game.adventureStep++;
 
       game.makeCardAction(game.hand[index].value);
-      updateAvatarView();
+      monitor.updateAvatarView();
 
-      updateRoomsIntoMonitor(game.hand[index].value);
+      avatarView.innerHTML = monitor.updateAvatarView();
+      lifeUI.innerHTML = monitor.updateLifeStats();
+
+
+      monitorView.innerHTML = monitor.updateRoomsIntoMonitor(game, rooms);
       checkIfGameOver();
       game.discardCardAfterUse(index);
 
@@ -235,7 +144,7 @@ function main() {
       tip("New Round. Pick a card young fellow.");
       clearInterval(t);
       game.getHand(game.cardStack);
-      updateHandView();
+      handView.innerHTML = monitor.updateHandView(handView, game);
       stackView.innerHTML = monitor.updateStack(game);
 
       nextTurn();
@@ -297,10 +206,10 @@ function main() {
 
     //first state
     stackView.innerHTML = monitor.updateStack(game);
-    console.log(stackView);
-    updateRoomsIntoMonitor("start");
-    updateHandView();
-    updateAvatarView();
+    monitorView.innerHTML = monitor.updateRoomsIntoMonitor('start', game, rooms);
+    handView.innerHTML = monitor.updateHandView(handView, game);
+    avatarView.innerHTML = monitor.updateAvatarView(game.player.hp);
+    lifeUI.innerHTML = monitor.updateLifeStats(game.player.hp);
     nextTurn();
 
     tip(

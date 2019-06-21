@@ -3,19 +3,18 @@
 function Game(player, newCardsStack, newRooms) {
   this.player = player;
   this.cardStack = newCardsStack;
-  this.hand = [];
+  this.hand = []; 
   this.handDivs = [];
   this.usedCards = [];
   this.adventureStep = 0;
-  this.rooms = newRooms;
-  this.visitedRoomsValue =[];
-  this.visitedBackgrounds =[];
+  // this.rooms = newRooms;
+  // this.visitedBackgrounds =[];
   this.callback = null;
   this.audioCallBack = null;
 }
 
 Game.prototype.shuffleCards = function(array) {
-  let result = []; //wtf, gives undefined
+  let result = []; 
   for (; array.length > 0; ) {
     let randomNumber = Math.floor(Math.random() * array.length);
     let randomCard = array.splice(randomNumber, 1);
@@ -26,9 +25,6 @@ Game.prototype.shuffleCards = function(array) {
   return result;
 };
 
-Game.prototype.initializeRooms = function() {
-  return this.cardStack.length;
-};
 
 Game.prototype.getHand = function(array) {
   this.hand = [];
