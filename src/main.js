@@ -76,13 +76,7 @@ function main() {
     let handView = document.querySelector("#hand");
     let avatarView = document.querySelector("#avatar");
     let lifeUI = document.querySelector(".life-ui");
-
-    // handView.innerHTML = monitor.updateHandView(handView, game);
-    //game.handDivs = document.querySelectorAll(".hand-card");
-
-
-
-
+    let handDivs = document.querySelectorAll(".hand-card");
 
     function tip(msg) {
       var speed = 25;
@@ -110,17 +104,12 @@ function main() {
       this.removeEventListener("onmouseenter", selectCard);
       this.setAttribute("id", "hand-card-back");
       displayCard(index);
-
       game.adventureStep++;
-
       game.makeCardAction(game.hand[index].value);
       monitor.updateAvatarView();
-
       avatarView.innerHTML = monitor.updateAvatarView();
       lifeUI.innerHTML = monitor.updateLifeStats();
-
-
-      monitorView.innerHTML = monitor.updateRoomsIntoMonitor(game, rooms);
+      monitorView.innerHTML = monitor.updateRoomsIntoMonitor(game.hand[index].value,game, rooms);
       checkIfGameOver();
       game.discardCardAfterUse(index);
 
@@ -151,14 +140,14 @@ function main() {
     }
 
     function createHandListeners(handDiv) {
-      handDiv.forEach(function (e, i) {
+      handDiv.forEach(function (card, i) {
         handDiv[i].addEventListener("click", selectCard);
         // e.preventDefault();
       });
     }
 
     function nextTurn() {
-      createHandListeners(game.handDivs);
+      createHandListeners(handDivs);
     }
 
     function checkIfGameOver() {
@@ -175,13 +164,13 @@ function main() {
       flipCard.pitch = -5//Math.random();
       flipCard.volume = .8;
       flipCard.play();
-      game.handDivs[index].style.background = `url(img/${
+      handDivs[index].style.background = `url(img/${
         game.hand[index].value
         }.png) center no-repeat`;
     }
 
     function closeCardBox() {
-      game.handDivs.forEach(function (e) {
+      handDivs.forEach(function (e) {
         var cardsBox = document.querySelectorAll(".hand-card");
 
         cardsBox.forEach(function (e, i) {
@@ -210,6 +199,8 @@ function main() {
     handView.innerHTML = monitor.updateHandView(handView, game);
     avatarView.innerHTML = monitor.updateAvatarView(game.player.hp);
     lifeUI.innerHTML = monitor.updateLifeStats(game.player.hp);
+    handDivs = document.querySelectorAll(".hand-card");
+
     nextTurn();
 
     tip(

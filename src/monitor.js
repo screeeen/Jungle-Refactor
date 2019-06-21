@@ -15,9 +15,9 @@ Monitor.prototype.updateStack = function (game) {
 }
 
 Monitor.prototype.updateRoomsIntoMonitor = function (cardValue, game, rooms) {
-  let result = "";
   console.log(rooms);
-
+  
+  let result = "";
   rooms.rooms.forEach(function (oneRoom, index) {
     if (game.adventureStep < index) {
       return;
@@ -28,7 +28,6 @@ Monitor.prototype.updateRoomsIntoMonitor = function (cardValue, game, rooms) {
       rooms.rooms[index].value = cardValue;
       rooms.rooms[index].visited = true;
       var randomBackground = Math.trunc(Math.random() * 4);
-      console.log("bg", rooms.visitedBackgrounds);
       rooms.visitedBackgrounds[index] = randomBackground;
       result += `
       <div class="room ${game.adventureStep}" style="background-image:url(img/bg_${rooms.visitedBackgrounds[index]}.png); ">
@@ -74,7 +73,6 @@ Monitor.prototype.updateAvatarView = function (hp) {
   if (hp == 2) {
     n = "6";
   }
-
   if (hp < 5) {
     n = "2";
   }
@@ -96,9 +94,10 @@ Monitor.prototype.updateAvatarView = function (hp) {
 
 Monitor.prototype.updateLifeStats = function (hp) {
   let resultLifeStats = "";
-  resultLifeStats = `<h2 class="life-ui">LIFE: ${
-    hp
-    } </h2>`;
-  resultLifeStats = `<h2 class="life-ui">+DEAD+</h2>`;
+  if (hp > 0) {
+    resultLifeStats = `<h2 class="life-ui">LIFE: ${hp} </h2>`;
+  } else {
+    resultLifeStats = `<h2 class="life-ui">+DEAD+</h2>`;
+  }
   return resultLifeStats;
 }
